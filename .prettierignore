@@ -1,0 +1,9 @@
+app 
+dist
+public
+
+
+.env.*
+.lintstagedrc
+.prettierignore
+.eslintignore
