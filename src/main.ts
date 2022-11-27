@@ -14,14 +14,16 @@ async function bootstrap() {
     origin: '*',
   });
   app.useGlobalPipes(new ValidationPipe());
-  app.use(compression);
-  app.use(helmet);
+  app.use(compression());
+  app.use(helmet());
+
   // config documentation
   const config = new DocumentBuilder()
     .setTitle('User Profile Management System')
     .setDescription('The User Profile Management System API description')
     .setVersion('1.0')
     .addTag('Auth')
+    .addTag('Upload')
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
