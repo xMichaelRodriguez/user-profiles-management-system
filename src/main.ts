@@ -1,4 +1,4 @@
-import { VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
@@ -7,23 +7,27 @@ import { ConfigurationService } from './config/configuration';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
+
   const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('User Profile Management System')
+    .setDescription('The User Profile Management System API description')
     .setVersion('1.0')
-    .addTag('cats')
+    .addTag('Auth')
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
   const configurationService = new ConfigurationService();
 
   const port = configurationService.getPort();
-  console.log({ port });
+
   app.enableVersioning({
+    defaultVersion: '1',
     type: VersioningType.URI,
   });
+
   SwaggerModule.setup('api', app, document);
-  await app.listen(3000, async () => {
+  await app.listen(port, async () => {
     const url = await app.getUrl();
     console.log(`listen on  ${url}`);
   });

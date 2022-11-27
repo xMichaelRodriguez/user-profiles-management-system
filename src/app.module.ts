@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 
 import { AuthModule } from './modules/auth/auth.module';
+import { FilesModule } from './modules/files/files.module';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
     SequelizeModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>
-        process.env.DATABASE_URL !== null
+        process.env.DATABASE_URL !== undefined
           ? {
               dialect: 'postgres',
               uri: process.env.DATABASE_URL,
@@ -31,6 +32,7 @@ import { AuthModule } from './modules/auth/auth.module';
             },
     }),
     AuthModule,
+    FilesModule,
   ],
   controllers: [],
   providers: [],
