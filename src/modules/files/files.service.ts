@@ -6,8 +6,11 @@ import { UpdateFileDto } from './dto/update-file.dto';
 
 @Injectable()
 export class FilesService {
-  create(_createFileDto: CreateFileDto) {
-    return 'This action adds a new file';
+  create(_createFileDto: CreateFileDto, file?: Express.Multer.File) {
+    return {
+      _createFileDto,
+      file,
+    };
   }
 
   findAll() {
