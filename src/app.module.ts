@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 
 import { AuthModule } from './modules/auth/auth.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { FilesModule } from './modules/files/files.module';
 
 @Module({
@@ -33,6 +34,7 @@ import { FilesModule } from './modules/files/files.module';
     }),
     AuthModule,
     FilesModule,
+    CloudinaryModule,
   ],
   controllers: [],
   providers: [],
