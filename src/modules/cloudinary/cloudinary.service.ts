@@ -12,7 +12,21 @@ export class CloudinaryService {
         if (error) return reject(error);
         resolve(result);
       });
+
       toStream(file.buffer).pipe(upload);
+    });
+  }
+
+  removeImage(public_id: string) {
+    return new Promise((resolve, reject) => {
+      v2.uploader
+        .destroy(public_id)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((e) => {
+          reject(e.message);
+        });
     });
   }
 }

@@ -4,6 +4,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
@@ -60,21 +61,94 @@ export class FilesService {
     }
   }
 
-  async findAll(): Promise<FileEntity[]> {
+  async findAll(user: User): Promise<FileEntity[]> {
     return await this.fileEntity.findAll({
+      where: {
+        userId: user.id,
+      },
       include: ['user'],
     });
   }
 
-  async findOne(id: string) {
-    return await this.fileEntity.findOne({ where: { id }, include: ['user'] });
+  async findOne(id: string, user: User) {
+    const result = await this.fileEntity.findOne({
+      where: { id, userId: user.id },
+      include: ['user'],
+    });
+
+    if (!result) throw new NotFoundException('File not found');
+
+    return result;
   }
 
-  update(id: number, _updateFileDto: UpdateFileDto) {
-    return `This action updates a #${id} file`;
+  async update(
+    id: string,
+    updateFileDto: UpdateFileDto,
+    file: Express.Multer.File,
+    user: User,
+  ) {
+    const optionsQuery = {
+      id,
+      userId: user.id,
+    };
+    const fileFound = await this.fileEntity.findOne({
+      where: optionsQuery,
+    });
+
+    if (!fileFound) throw new NotFoundException(`File with id:${id} not found`);
+
+    try {
+      await this.sequelize.transaction(async (t) => {
+        const transactionHost = { transaction: t };
+        let data = {};
+        if (file !== undefined) {
+          const [{ public_id, secure_url }, imageRemoved] = await Promise.all([
+            await this.cloudinaryService.uploadImage(file),
+            await this.cloudinaryService.removeImage(fileFound.public_id),
+          ]);
+
+          data = {
+            public_id,
+            secure_url,
+          };
+        }
+        await this.fileEntity.update(
+          {
+            ...data,
+            userId: user.id,
+            title: updateFileDto.title,
+          },
+          {
+            where: optionsQuery,
+            transaction: transactionHost.transaction,
+          },
+        );
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new InternalServerErrorException();
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} file`;
+  async remove(id: string, user: User) {
+    const optionsQuery = {
+      id,
+      userId: user.id,
+    };
+    const fileFound = await this.fileEntity.findOne({
+      where: optionsQuery,
+    });
+
+    if (!fileFound) throw new NotFoundException();
+
+    try {
+      await this.cloudinaryService.removeImage(fileFound.public_id);
+      this.fileEntity.destroy({
+        where: optionsQuery,
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new InternalServerErrorException();
+    }
   }
 }

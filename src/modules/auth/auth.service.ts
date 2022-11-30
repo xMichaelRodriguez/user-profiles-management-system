@@ -44,7 +44,7 @@ export class AuthService {
         activationToken: v4(),
       });
 
-      return user;
+      return user.toJSON();
     } catch (error) {
       if (error.name === 'SequelizeUniqueConstraintError') {
         throw new ConflictException('This email is already registered');
