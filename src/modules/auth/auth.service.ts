@@ -18,7 +18,7 @@ import { LoginAuthDto } from './dto/login-auth.dto';
 import { RequestResetPasswordDto } from './dto/request-reset-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { EncoderService } from './encoder/encoder.service';
-import { User } from './entities/auth.entity';
+import User from './entities/auth.entity';
 import { JwtPayload } from './interfaces/jwt.interface';
 
 @Injectable()
@@ -32,7 +32,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async create(createAuthDto: CreateAuthDto) {
+  async create(createAuthDto: CreateAuthDto): Promise<User> {
     try {
       const { password } = createAuthDto;
       const plainTextToHash = await this.encoderService.encodePassword(
@@ -44,7 +44,7 @@ export class AuthService {
         activationToken: v4(),
       });
 
-      return user.toJSON();
+      return user;
     } catch (error) {
       if (error.name === 'SequelizeUniqueConstraintError') {
         throw new ConflictException('This email is already registered');

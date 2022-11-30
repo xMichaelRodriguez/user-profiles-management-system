@@ -6,20 +6,25 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { Sequelize } from 'sequelize-typescript';
 
-import { User } from '../auth/entities/auth.entity';
+import User from '../auth/entities/auth.entity';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
-import { FileEntity } from './entities/file.entity';
+import FileEntity from './entities/file.entity';
 
 @Injectable()
 export class FilesService {
   private logger = new Logger(FilesService.name);
+
   constructor(
     @InjectModel(FileEntity)
     private readonly fileEntity: typeof FileEntity,
+
     private readonly cloudinaryService: CloudinaryService,
+
+    private sequelize: Sequelize,
   ) {}
 
   async create(
@@ -28,33 +33,41 @@ export class FilesService {
     file?: Express.Multer.File,
   ) {
     if (file === undefined) throw new BadRequestException('File is require');
+
+    let fileUploaded = {};
     try {
       const { public_id, secure_url } =
         await this.cloudinaryService.uploadImage(file);
 
-      const fileUploaded = await this.fileEntity.create({
-        public_id,
-        secure_url,
-        userId: user.id,
+      await this.sequelize.transaction(async (t) => {
+        const transactionHost = { transaction: t };
+
+        fileUploaded = await this.fileEntity.create(
+          {
+            public_id,
+            secure_url,
+            userId: user.id,
+            title: createFileDto.title,
+          },
+          { ...transactionHost, returning: true },
+        );
       });
 
-      return {
-        image: fileUploaded,
-        createFileDto,
-      };
+      return fileUploaded;
     } catch (error) {
-      this.logger.error(error.message);
       this.logger.error(error);
       throw new InternalServerErrorException();
     }
   }
 
-  findAll() {
-    return `This action returns all files`;
+  async findAll(): Promise<FileEntity[]> {
+    return await this.fileEntity.findAll({
+      include: ['user'],
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} file`;
+  async findOne(id: string) {
+    return await this.fileEntity.findOne({ where: { id }, include: ['user'] });
   }
 
   update(id: number, _updateFileDto: UpdateFileDto) {

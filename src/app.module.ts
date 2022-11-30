@@ -3,7 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 
 import { AuthModule } from './modules/auth/auth.module';
+import User from './modules/auth/entities/auth.entity';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import FileEntity from './modules/files/entities/file.entity';
 import { FilesModule } from './modules/files/files.module';
 
 @Module({
@@ -30,6 +32,9 @@ import { FilesModule } from './modules/files/files.module';
               autoLoadModels: true,
               synchronize: true,
               repositoryMode: true,
+              models: [User, FileEntity],
+              modelMatch: (filename, member) =>
+                filename.toLocaleLowerCase() === member.toLocaleLowerCase(),
             },
     }),
     AuthModule,

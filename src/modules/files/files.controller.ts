@@ -16,9 +16,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 
 import { GetUser } from '../auth/decorators/get-user.decorator';
-import { User } from '../auth/entities/auth.entity';
+import User from '../auth/entities/auth.entity';
 import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
+import FileEntity from './entities/file.entity';
 import { FilesService } from './files.service';
 
 @ApiTags('Upload')
@@ -28,7 +29,7 @@ export class FilesController {
 
   @UseInterceptors(FileInterceptor('file'))
   @Post('/')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard('jwt'))
   create(
     @GetUser() user: User,
     @Body() createFileDto: CreateFileDto,
@@ -38,7 +39,7 @@ export class FilesController {
           fileType: /(gif|jpeg|png|jpg)/gi,
         })
         .build({
-          fileIsRequired: false,
+          fileIsRequired: true,
         }),
     )
     file?: Express.Multer.File,
@@ -47,13 +48,13 @@ export class FilesController {
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<FileEntity[]> {
     return this.filesService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.filesService.findOne(+id);
+    return this.filesService.findOne(id);
   }
 
   @Patch(':id')

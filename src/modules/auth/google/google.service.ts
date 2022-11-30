@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/sequelize';
 
 import { AuthService } from '../auth.service';
 import { CreateGoogleDto } from '../dto/create-google.dto';
-import { User } from '../entities/auth.entity';
+import User from '../entities/auth.entity';
 import { JwtPayload } from '../interfaces/jwt.interface';
 
 interface IFormatUser {

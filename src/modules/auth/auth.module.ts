@@ -7,7 +7,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { EncoderService } from './encoder/encoder.service';
-import { User } from './entities/auth.entity';
+import User from './entities/auth.entity';
 import { GoogleStrategy } from './google-strategy';
 import { GoogleService } from './google/google.service';
 import { JwtStrategy } from './jwtStrategy';

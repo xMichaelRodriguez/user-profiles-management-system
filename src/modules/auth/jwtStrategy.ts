@@ -4,7 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { InjectModel } from '@nestjs/sequelize';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-import { User } from './entities/auth.entity';
+import User from './entities/auth.entity';
 import { JwtPayload } from './interfaces/jwt.interface';
 
 @Injectable()
