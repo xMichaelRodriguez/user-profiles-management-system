@@ -2,6 +2,7 @@ import { Exclude } from 'class-transformer';
 import { DataTypes } from 'sequelize';
 import {
   Column,
+  HasMany,
   IsEmail,
   IsUUID,
   Model,
@@ -10,9 +11,10 @@ import {
   Table,
   Unique,
 } from 'sequelize-typescript';
+import FileEntity from 'src/modules/files/entities/file.entity';
 
 @Table
-export class User extends Model {
+export default class User extends Model {
   @IsUUID(4)
   @PrimaryKey
   @Column({
@@ -50,7 +52,7 @@ export class User extends Model {
   active?: boolean;
 
   @IsUUID(4)
-  @Exclude({ toPlainOnly: true })
+  @Exclude()
   @Column({
     type: DataTypes.UUID,
     field: 'activation_token',
@@ -67,4 +69,7 @@ export class User extends Model {
     allowNull: true,
   })
   resetPasswordToken: string;
+
+  @HasMany(() => FileEntity)
+  files: FileEntity[];
 }

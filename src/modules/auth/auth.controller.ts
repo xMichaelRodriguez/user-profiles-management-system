@@ -29,7 +29,7 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { RequestResetPasswordDto } from './dto/request-reset-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { User } from './entities/auth.entity';
+import User from './entities/auth.entity';
 import { GoogleService } from './google/google.service';
 
 @ApiTags('Auth')
@@ -53,7 +53,7 @@ export class AuthController {
     description: 'Internal server Error',
   })
   @Post('/local/register')
-  create(@Body() createAuthDto: CreateAuthDto) {
+  create(@Body() createAuthDto: CreateAuthDto): Promise<User> {
     return this.authService.create(createAuthDto);
   }
 
