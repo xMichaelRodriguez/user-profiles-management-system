@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { AuthService } from '../auth.service';
 import { EncoderService } from '../encoder/encoder.service';
-import { User } from '../entities/auth.entity';
+import User from '../entities/auth.entity';
 import { GoogleService } from './google.service';
 
 describe('GoogleServiceService', () => {
