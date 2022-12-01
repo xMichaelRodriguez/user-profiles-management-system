@@ -5,10 +5,15 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint/eslint-plugin', 'eslint-plugin-import-helpers'],
+  plugins: [
+    '@typescript-eslint/eslint-plugin',
+    'eslint-plugin-import-helpers',
+    'prettier',
+  ],
   extends: [
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
+    'prettier',
   ],
   root: true,
   env: {
@@ -17,6 +22,7 @@ module.exports = {
   },
   ignorePatterns: ['.eslintrc.js'],
   rules: {
+    'prettier/prettier': 'error',
     'import-helpers/order-imports': [
       'warn',
       {

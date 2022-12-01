@@ -1,12 +1,47 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { SequelizeModule } from '@nestjs/sequelize';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AuthModule } from './modules/auth/auth.module';
+import User from './modules/auth/entities/auth.entity';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import FileEntity from './modules/files/entities/file.entity';
+import { FilesModule } from './modules/files/files.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true })],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+
+    SequelizeModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) =>
+        process.env.DATABASE_URL !== undefined
+          ? {
+              dialect: 'postgres',
+              uri: process.env.DATABASE_URL,
+              autoLoadModels: true,
+              synchronize: true,
+            }
+          : {
+              dialect: 'postgres',
+              host: configService.get('PG_HOST'),
+              port: +configService.get<number>('PG_PORT'),
+              username: configService.get('PG_USER'),
+              password: configService.get('PG_PASSWORD'),
+              database: configService.get('PG_DATABASE'),
+              autoLoadModels: true,
+              synchronize: true,
+              repositoryMode: true,
+              models: [User, FileEntity],
+              modelMatch: (filename, member) =>
+                filename.toLocaleLowerCase() === member.toLocaleLowerCase(),
+            },
+    }),
+    AuthModule,
+    FilesModule,
+    CloudinaryModule,
+  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
