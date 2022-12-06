@@ -188,4 +188,15 @@ export class AuthService {
       { where: { id: user.id } },
     );
   }
+
+  async getProfile(user: User): Promise<{ user: User }> {
+    const userFound: User = await this.authModel.findOne({
+      where: { id: user.id },
+    });
+    if (!userFound) throw new NotFoundException();
+
+    return {
+      user: userFound.toJSON(),
+    };
+  }
 }

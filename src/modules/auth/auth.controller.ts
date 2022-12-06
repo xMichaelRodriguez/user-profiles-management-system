@@ -149,4 +149,11 @@ export class AuthController {
   async activateAccount(@Query() activateUserDto: ActivateUserDto) {
     return await this.authService.activateUser(activateUserDto);
   }
+
+  @Get('/profiles')
+  @UseGuards(AuthGuard('jwt'))
+  async getProfile(@GetUser() user: User): Promise<{ user: User }> {
+    console.log(user);
+    return this.authService.getProfile(user);
+  }
 }
