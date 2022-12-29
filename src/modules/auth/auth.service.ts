@@ -10,6 +10,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
 import { v4 } from 'uuid';
+import { MailService } from '../mail/mail.service';
 
 import { ActivateUserDto } from './dto/activate-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -30,6 +31,8 @@ export class AuthService {
     private encoderService: EncoderService,
 
     private jwtService: JwtService,
+
+    private mailerService: MailService,
   ) {}
 
   async create(createAuthDto: CreateAuthDto): Promise<User> {
@@ -43,7 +46,10 @@ export class AuthService {
         password: plainTextToHash,
         activationToken: v4(),
       });
-
+      await this.mailerService.sendVerificationUsers(
+        user,
+        user.activationToken,
+      );
       return user.toJSON();
     } catch (error) {
       if (error.name === 'SequelizeUniqueConstraintError') {
