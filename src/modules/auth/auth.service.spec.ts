@@ -2,6 +2,7 @@ import { JwtService } from '@nestjs/jwt';
 import { getModelToken } from '@nestjs/sequelize';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { MailService } from '../mail/mail.service';
 import { AuthService } from './auth.service';
 import { EncoderService } from './encoder/encoder.service';
 import User from './entities/auth.entity';
@@ -19,6 +20,7 @@ describe('AuthService', () => {
         },
         EncoderService,
         JwtService,
+        { provide: MailService, useValue: {} },
       ],
     }).compile();
 

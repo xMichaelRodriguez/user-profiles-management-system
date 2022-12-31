@@ -6,7 +6,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
 
-import { AuthService } from '../auth.service';
 import { CreateGoogleDto } from '../dto/create-google.dto';
 import User from '../entities/auth.entity';
 import { JwtPayload } from '../interfaces/jwt.interface';
@@ -26,7 +25,6 @@ export class GoogleService {
   constructor(
     @InjectModel(User)
     private authModel: typeof User,
-    private readonly authService: AuthService,
     private readonly jwtService: JwtService,
   ) {}
 

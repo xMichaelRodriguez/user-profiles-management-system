@@ -10,8 +10,8 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
 import { v4 } from 'uuid';
-import { MailService } from '../mail/mail.service';
 
+import { MailService } from '../mail/mail.service';
 import { ActivateUserDto } from './dto/activate-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateAuthDto } from './dto/create-auth.dto';
