@@ -56,7 +56,8 @@ export class AuthService {
         throw new ConflictException('This email is already registered');
       }
 
-      console.log({ ERROR: error.message, error });
+      console.log({ ERROR: error.message, TYPE: { error } });
+
       throw new InternalServerErrorException();
     }
   }
