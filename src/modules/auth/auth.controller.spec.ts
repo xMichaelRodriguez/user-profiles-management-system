@@ -1,4 +1,5 @@
 import { JwtService } from '@nestjs/jwt';
+import { AuthGuard, PassportModule } from '@nestjs/passport';
 import { getModelToken } from '@nestjs/sequelize';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -14,6 +15,7 @@ describe('AuthController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [PassportModule.register({ defaultStrategy: 'jwt' })],
       controllers: [AuthController],
       providers: [
         AuthService,
@@ -25,6 +27,12 @@ describe('AuthController', () => {
         JwtService,
         { provide: MailService, useValue: {} },
         GoogleService,
+        {
+          provide: AuthGuard,
+          useFactory: () => {
+            return () => AuthGuard();
+          },
+        },
       ],
     }).compile();
 
