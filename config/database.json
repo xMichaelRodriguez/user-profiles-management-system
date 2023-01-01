@@ -1,20 +1,24 @@
 {
   "development": {
-    "username": "root",
+    "models": ["dist/**/*.entity.js"],
+    "storage": "db.development.sqlite",
+    "username": "postgres",
     "password": null,
     "database": "database_development",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "test": {
-    "username": "root",
+    "models": "dist/**/*.entity.js)",
+    "username": "postgres",
     "password": null,
     "database": "database_test",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "production": {
-    "username": "root",
+    "models": "dist/**/*.entity.js)",
+    "username": "postgres",
     "password": null,
     "database": "database_production",
     "host": "127.0.0.1",
