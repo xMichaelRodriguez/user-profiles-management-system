@@ -19,7 +19,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "migrate:up": "npx sequelize-cli db:migrate",
+    "migrate:undo": "npx sequelize-cli db:migrate:undo"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^1.8.1",
@@ -73,6 +75,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import-helpers": "^1.3.1",
     "eslint-plugin-prettier": "^4.0.0",
+    "glob": "^8.0.3",
     "husky": "^8.0.2",
     "jest": "28.1.3",
     "lint-staged": "^13.0.4",
