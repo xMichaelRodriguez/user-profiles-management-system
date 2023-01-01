@@ -32,7 +32,7 @@ export class AuthService {
 
     private jwtService: JwtService,
 
-    private mailerService: MailService,
+    private mailService: MailService,
   ) {}
 
   async create(createAuthDto: CreateAuthDto): Promise<User> {
@@ -46,10 +46,7 @@ export class AuthService {
         password: plainTextToHash,
         activationToken: v4(),
       });
-      await this.mailerService.sendVerificationUsers(
-        user,
-        user.activationToken,
-      );
+      await this.mailService.sendVerificationUsers(user, user.activationToken);
       return user.toJSON();
     } catch (error) {
       if (error.name === 'SequelizeUniqueConstraintError') {
