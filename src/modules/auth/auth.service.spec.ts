@@ -1,23 +1,21 @@
-import { MailerService } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import {
   ConflictException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard, PassportModule } from '@nestjs/passport';
+import { getModelToken } from '@nestjs/sequelize';
 import { Test } from '@nestjs/testing';
-import { join } from 'path';
 import { Sequelize } from 'sequelize-typescript';
 
 import FileEntity from '../files/entities/file.entity';
+import { MailModule } from '../mail/mail.module';
 import { MailService } from '../mail/mail.service';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { EncoderService } from './encoder/encoder.service';
 import User from './entities/auth.entity';
-import { JwtStrategy } from './jwtStrategy';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -41,10 +39,21 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [PassportModule.register({ defaultStrategy: 'jwt' })],
+      imports: [
+        PassportModule.register({ defaultStrategy: 'jwt' }),
+        MailModule,
+        ConfigModule, //
+      ],
       providers: [
-        User,
-        MailerService,
+        AuthService,
+        {
+          provide: getModelToken(User),
+          useClass: User,
+        },
+
+        MailService,
+        MailService,
+        ConfigService,
         EncoderService,
         JwtService,
         {
@@ -52,31 +61,6 @@ describe('AuthService', () => {
           useValue: mockedSequelize,
         },
 
-        {
-          provide: 'MAILER_OPTIONS',
-          useValue: {
-            host: 'mtp.mailgun.org',
-            secure: false,
-            auth: {
-              user: 'postmaster@sandbox860c7834b93e44fab836443309cdb3a6.mailgun.org',
-              pass: 'a52987bc58976385d0b886d4efbb58a5-c2efc90c-f390d3be',
-            },
-          },
-        },
-        {
-          provide: 'MAILER_TRANSPORT_FACTORY',
-          useFactory: async () => ({
-            transport: {
-              host: 'mtp.mailgun.org',
-              secure: false,
-              port: 587,
-              auth: {
-                user: 'postmaster@sandbox860c7834b93e44fab836443309cdb3a6.mailgun.org',
-                pass: 'a52987bc58976385d0b886d4efbb58a5-c2efc90c-f390d3be',
-              },
-            },
-          }),
-        },
         {
           provide: AuthGuard,
           useFactory: () => {
