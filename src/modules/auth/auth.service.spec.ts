@@ -5,6 +5,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { AuthGuard, PassportModule } from '@nestjs/passport';
 import { Test } from '@nestjs/testing';
 import { join } from 'path';
@@ -45,31 +46,33 @@ describe('AuthService', () => {
         User,
         MailerService,
         EncoderService,
-        JwtStrategy,
+        JwtService,
         {
           provide: 'SequelizeInstance',
           useValue: mockedSequelize,
         },
 
         {
+          provide: 'MAILER_OPTIONS',
+          useValue: {
+            host: 'mtp.mailgun.org',
+            secure: false,
+            auth: {
+              user: 'postmaster@sandbox860c7834b93e44fab836443309cdb3a6.mailgun.org',
+              pass: 'a52987bc58976385d0b886d4efbb58a5-c2efc90c-f390d3be',
+            },
+          },
+        },
+        {
           provide: 'MAILER_TRANSPORT_FACTORY',
-          useFactory: async (config: ConfigService) => ({
+          useFactory: async () => ({
             transport: {
-              host: config.get('MAIL_HOST'),
+              host: 'mtp.mailgun.org',
               secure: false,
+              port: 587,
               auth: {
-                user: config.get('MAIL_USER'),
-                pass: config.get('MAIL_PASSWORD'),
-              },
-            },
-            defaults: {
-              from: `"No Reply" <${config.get('MAIL_FROM')}>`,
-            },
-            template: {
-              dir: join(__dirname, 'templates/'),
-              adapter: new HandlebarsAdapter(),
-              options: {
-                strict: true,
+                user: 'postmaster@sandbox860c7834b93e44fab836443309cdb3a6.mailgun.org',
+                pass: 'a52987bc58976385d0b886d4efbb58a5-c2efc90c-f390d3be',
               },
             },
           }),
@@ -82,7 +85,7 @@ describe('AuthService', () => {
         },
       ],
 
-      exports: [JwtStrategy, PassportModule],
+      exports: [PassportModule],
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
