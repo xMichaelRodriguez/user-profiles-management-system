@@ -22,20 +22,26 @@ import { MailModule } from './modules/mail/mail.module';
               uri: process.env.DATABASE_URL,
               autoLoadModels: true,
               synchronize: true,
+              define: {
+                timestamps: false,
+              },
             }
           : {
               dialect: 'postgres',
               host: configService.get('PG_HOST'),
               port: +configService.get<number>('PG_PORT'),
-              username: configService.get('PG_USER'),
-              password: configService.get('PG_PASSWORD'),
-              database: configService.get('PG_DATABASE'),
+              username: configService.get<string>('PG_USER'),
+              password: configService.get<string>('PG_PASSWORD'),
+              database: configService.get<string>('PG_DATABASE'),
               autoLoadModels: true,
               synchronize: true,
               repositoryMode: true,
               models: [User, FileEntity],
               modelMatch: (filename, member) =>
                 filename.toLocaleLowerCase() === member.toLocaleLowerCase(),
+              define: {
+                timestamps: false,
+              },
             },
     }),
     AuthModule,

@@ -8,7 +8,7 @@ export class MailService {
   constructor(private mailerService: MailerService) {}
 
   async sendVerificationUsers(user: User, token: string) {
-    const url = `http://localhost:3000/v1/auth/activate-accounts/?id=${user.id}&code=${token}`;
+    const url = `http://localhost:4000/v1/auth/activate-accounts/?id=${user.id}&code=${token}`;
 
     const sendMailOptions = {
       to: user.email,

@@ -9,7 +9,7 @@
     "dialect": "postgres"
   },
   "test": {
-    "models": "dist/**/*.entity.js)",
+    "models": "dist/**/*.entity.js",
     "username": "postgres",
     "password": null,
     "database": "database_test",
@@ -17,7 +17,7 @@
     "dialect": "postgres"
   },
   "production": {
-    "models": "dist/**/*.entity.js)",
+    "models": "dist/**/*.entity.js",
     "username": "postgres",
     "password": null,
     "database": "database_production",

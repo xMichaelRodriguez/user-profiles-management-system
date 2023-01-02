@@ -6,7 +6,8 @@
     "assets": [
       {
         "include": "**/templates/*",
-        "watchAssets": true
+        "watchAssets": true,
+        "outDir": "dist/src/"
       }
     ],
     "watchAssets": true
