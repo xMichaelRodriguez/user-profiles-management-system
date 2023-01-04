@@ -8,6 +8,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MailService } from '../mail/mail.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { ActivateUserDto } from './dto/activate-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { RequestResetPasswordDto } from './dto/request-reset-password.dto';
 import { EncoderService } from './encoder/encoder.service';
@@ -121,5 +123,44 @@ describe('AuthController', () => {
     expect(service.requestResetPassword).toHaveBeenCalledWith(
       requestResetPasswordDto,
     );
+  });
+
+  it('should change the password of the current user', async () => {
+    const ChangePasswordDto: ChangePasswordDto = {
+      newPassword: 'new',
+      oldPassword: 'current',
+    };
+    const user = {
+      id: expect.any(String),
+      username: 'test',
+      email: 'test@test.com',
+      active: true,
+      isRegisteredWithGoogle: false,
+      activationToken: '',
+      resetPasswordToken: null,
+    };
+    jest.spyOn(service, 'changePassword').mockImplementation(async () => {});
+
+    await controller.changePassword(
+      ChangePasswordDto,
+      expect.objectContaining(user),
+    );
+
+    expect(service.changePassword).toHaveBeenCalledWith(
+      ChangePasswordDto,
+      user,
+    );
+  });
+
+  it('should activate the user account', async () => {
+    const activateAccount: ActivateUserDto = {
+      id: '1',
+      code: 'sfsfb;lkesrg',
+    };
+
+    jest.spyOn(service, 'activateUser').mockImplementation(async () => {});
+
+    await controller.activateAccount(activateAccount);
+    expect(service.activateUser).toHaveBeenCalledWith(activateAccount);
   });
 });
