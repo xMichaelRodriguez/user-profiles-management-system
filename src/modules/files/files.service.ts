@@ -25,7 +25,7 @@ export class FilesService {
 
     private readonly cloudinaryService: CloudinaryService,
 
-    private sequelize: Sequelize,
+    private readonly sequelize: Sequelize,
   ) {}
 
   async create(
@@ -139,7 +139,7 @@ export class FilesService {
       where: optionsQuery,
     });
 
-    if (!fileFound) throw new NotFoundException();
+    if (!fileFound) throw new NotFoundException('File Not Found');
 
     try {
       await this.cloudinaryService.removeImage(fileFound.public_id);

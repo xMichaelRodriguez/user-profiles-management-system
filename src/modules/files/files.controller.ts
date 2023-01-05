@@ -13,7 +13,12 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import User from '../auth/entities/auth.entity';
@@ -27,6 +32,10 @@ import { FilesService } from './files.service';
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
+  @ApiOkResponse({
+    type: CreateFileDto,
+  })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   @UseInterceptors(FileInterceptor('file'))
   @Post('/')
   create(
@@ -46,16 +55,22 @@ export class FilesController {
     return this.filesService.create(createFileDto, user, file);
   }
 
-  @Get()
+  @ApiOkResponse({ type: Array<FileEntity> })
+  @Get('/')
   findAll(@GetUser() user: User): Promise<FileEntity[]> {
     return this.filesService.findAll(user);
   }
 
+  @ApiOkResponse({ type: FileEntity })
+  @ApiNotFoundResponse({ description: 'File not found' })
   @Get(':id')
   findOne(@GetUser() user: User, @Param('id') id: string) {
     return this.filesService.findOne(id, user);
   }
 
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ description: `File with id:1 not found` })
+  @ApiInternalServerErrorResponse()
   @Patch(':id')
   @UseInterceptors(FileInterceptor('file'))
   update(
@@ -76,6 +91,9 @@ export class FilesController {
     return this.filesService.update(id, updateFileDto, file, user);
   }
 
+  @ApiOkResponse()
+  @ApiNotFoundResponse({ description: `File Not Found` })
+  @ApiInternalServerErrorResponse()
   @Delete(':id')
   remove(@GetUser() user: User, @Param('id') id: string) {
     return this.filesService.remove(id, user);
