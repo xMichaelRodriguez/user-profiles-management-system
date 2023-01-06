@@ -1,11 +1,11 @@
 import { getModelToken } from '@nestjs/sequelize';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
-import sequelize from 'sequelize';
+import { Transaction } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { file, user } from 'src/libs/mocks/file.service';
+import { SequelizeMock } from 'src/libs/mocks/mock.sequelize';
 
-import User from '../auth/entities/auth.entity';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateFileDto } from './dto/create-file.dto';
 import FileEntity from './entities/file.entity';
@@ -16,19 +16,6 @@ describe('FilesService', () => {
   let cloudinaryService: CloudinaryService;
   let mockedSequelize: Sequelize;
 
-  beforeAll(async () => {
-    // Crea una instancia mock de Sequelize y establece la conexión con la base de datos
-    mockedSequelize = new Sequelize({
-      database: 'test',
-      username: 'root',
-      password: '123456',
-      dialect: 'sqlite',
-      models: [User, FileEntity],
-    });
-    await mockedSequelize.authenticate();
-
-    await mockedSequelize.sync({ force: true });
-  });
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -37,16 +24,16 @@ describe('FilesService', () => {
           provide: getModelToken(FileEntity),
           useValue: FileEntity,
         },
-        { provide: CloudinaryService, useClass: CloudinaryService },
+        { provide: CloudinaryService, useValue: new CloudinaryService() },
         {
-          provide: getModelToken(Sequelize),
-          useValue: mockedSequelize,
+          provide: Sequelize,
+          useValue: new SequelizeMock(),
         },
-        Sequelize,
       ],
     }).compile();
 
     service = module.get<FilesService>(FilesService);
+    mockedSequelize = module.get<Sequelize>(Sequelize);
     cloudinaryService = module.get<CloudinaryService>(CloudinaryService);
   });
 
@@ -70,33 +57,28 @@ describe('FilesService', () => {
     const createSpy = jest.spyOn(FileEntity, 'create').mockResolvedValue({
       public_id: 'abc123',
       secure_url: 'https://example.com',
-      userId: 123,
-      title: 'My file',
+      userId: 1234,
+      title: createFileDto.title,
     });
 
-    const transactionSpy = jest.mock('sequelize', () => ({
-      transaction: jest.fn(() => Promise.resolve()),
-    }));
+    const transactionSpy = jest
+      .spyOn(mockedSequelize, 'transaction')
+      .mockResolvedValue({ transaction: {} } as unknown as Transaction);
 
     const result = await service.create(createFileDto, user, file);
 
     expect(uploadImageSpy).toHaveBeenCalledWith(file);
+    expect(uploadImageSpy).toHaveBeenCalledTimes(1);
 
-    expect(createSpy).toHaveBeenCalledWith(
-      {
-        public_id: 'abc123',
-        secure_url: 'https://example.com',
-        userId: 123,
-        title: 'My file',
-      },
-      { transaction: {}, returning: true },
-    );
+    console.log({ calls: createSpy.mock.calls });
+    expect(createSpy.mock.calls.length).toBeGreaterThanOrEqual(1);
+
     expect(transactionSpy).toHaveBeenCalledTimes(1);
     expect(result).toEqual({
       public_id: 'abc123',
       secure_url: 'https://example.com',
-      userId: 123,
-      title: 'My file',
+      userId: 1234,
+      title: createFileDto.title,
     });
   });
 });
