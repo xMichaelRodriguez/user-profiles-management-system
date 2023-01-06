@@ -69,11 +69,9 @@ describe('FilesService', () => {
 
     expect(uploadImageSpy).toHaveBeenCalledWith(file);
     expect(uploadImageSpy).toHaveBeenCalledTimes(1);
-
-    console.log({ calls: createSpy.mock.calls });
+    expect(transactionSpy).toHaveBeenCalledTimes(1);
     expect(createSpy.mock.calls.length).toBeGreaterThanOrEqual(1);
 
-    expect(transactionSpy).toHaveBeenCalledTimes(1);
     expect(result).toEqual({
       public_id: 'abc123',
       secure_url: 'https://example.com',
