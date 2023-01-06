@@ -1,9 +1,11 @@
 import { getModelToken } from '@nestjs/sequelize';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
+import sequelize from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { file, user } from 'src/libs/mocks/file.service';
 
+import User from '../auth/entities/auth.entity';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateFileDto } from './dto/create-file.dto';
 import FileEntity from './entities/file.entity';
@@ -12,8 +14,21 @@ import { FilesService } from './files.service';
 describe('FilesService', () => {
   let service: FilesService;
   let cloudinaryService: CloudinaryService;
-  // let sequelize: Sequelize;
+  let mockedSequelize: Sequelize;
 
+  beforeAll(async () => {
+    // Crea una instancia mock de Sequelize y establece la conexión con la base de datos
+    mockedSequelize = new Sequelize({
+      database: 'test',
+      username: 'root',
+      password: '123456',
+      dialect: 'sqlite',
+      models: [User, FileEntity],
+    });
+    await mockedSequelize.authenticate();
+
+    await mockedSequelize.sync({ force: true });
+  });
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -23,12 +38,15 @@ describe('FilesService', () => {
           useValue: FileEntity,
         },
         { provide: CloudinaryService, useClass: CloudinaryService },
-        { provide: Sequelize, useValue: Sequelize },
+        {
+          provide: getModelToken(Sequelize),
+          useValue: mockedSequelize,
+        },
+        Sequelize,
       ],
     }).compile();
 
     service = module.get<FilesService>(FilesService);
-    // sequelize = module.get<Sequelize>(Sequelize);
     cloudinaryService = module.get<CloudinaryService>(CloudinaryService);
   });
 
@@ -56,11 +74,9 @@ describe('FilesService', () => {
       title: 'My file',
     });
 
-    // const transactionSpy = jest
-    //   .spyOn(sequelize, 'transaction')
-    //   .mockImplementation((transactionCB) =>
-    //     transactionCB({ transaction: {} } as any),
-    //   );
+    const transactionSpy = jest.mock('sequelize', () => ({
+      transaction: jest.fn(() => Promise.resolve()),
+    }));
 
     const result = await service.create(createFileDto, user, file);
 
@@ -75,7 +91,7 @@ describe('FilesService', () => {
       },
       { transaction: {}, returning: true },
     );
-    // expect(transactionSpy).toHaveBeenCalledTimes(1);
+    expect(transactionSpy).toHaveBeenCalledTimes(1);
     expect(result).toEqual({
       public_id: 'abc123',
       secure_url: 'https://example.com',

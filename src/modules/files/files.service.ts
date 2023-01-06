@@ -56,6 +56,7 @@ export class FilesService {
 
       return fileUploaded;
     } catch (error) {
+      console.log({ error });
       this.logger.error(error);
       throw new InternalServerErrorException();
     }
