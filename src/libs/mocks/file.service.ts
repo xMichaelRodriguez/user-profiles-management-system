@@ -38,3 +38,28 @@ export class FilesServiceMock {
     } as unknown as FileEntity;
   }
 }
+
+export const filesMock = [
+  {
+    id: '1',
+    public_id: 'abc123',
+    secure_url: 'https://example.com',
+    userId: '1',
+    title: 'File 1',
+  },
+  {
+    id: '2',
+    public_id: 'def456',
+    secure_url: 'https://example.com',
+    userId: '1',
+    title: 'File 2',
+  },
+] as FileEntity[];
+
+export const fileMock = {
+  id: '1',
+  public_id: 'abc123',
+  secure_url: 'https://example.com',
+  userId: '1',
+  title: 'File 1',
+} as FileEntity;

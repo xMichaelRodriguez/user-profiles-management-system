@@ -31,7 +31,7 @@ export class FilesService {
   async create(
     createFileDto: CreateFileDto,
     user: User,
-    file?: Express.Multer.File,
+    file: Express.Multer.File,
   ) {
     if (file === undefined) throw new BadRequestException('File is require');
 
@@ -51,12 +51,9 @@ export class FilesService {
           { transaction: t, returning: true },
         );
       });
-      if (!fileUploaded || typeof fileUploaded !== 'object') {
-        throw new InternalServerErrorException();
-      }
+
       return fileUploaded;
     } catch (error) {
-      console.log({ error });
       this.logger.error(error);
       throw new InternalServerErrorException();
     }
