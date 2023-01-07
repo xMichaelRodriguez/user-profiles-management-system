@@ -12,6 +12,9 @@ import FileEntity from './entities/file.entity';
 import { FilesService } from './files.service';
 
 describe('FilesService', () => {
+  const createFileDto: CreateFileDto = {
+    title: 'test',
+  };
   let service: FilesService;
   let cloudinaryService: CloudinaryService;
   let mockedSequelize: Sequelize;
@@ -42,10 +45,13 @@ describe('FilesService', () => {
   });
 
   it('should create a new user', async () => {
-    const createFileDto: CreateFileDto = {
-      title: 'test',
-    };
-
+    const createSpy = jest.spyOn(FileEntity, 'create').mockResolvedValue({
+      id: expect.any(String),
+      public_id: 'abc123',
+      secure_url: 'https://example.com',
+      userId: '1',
+      title: createFileDto.title,
+    });
     const uploadImageSpy = jest
       .spyOn(cloudinaryService, 'uploadImage')
       .mockImplementation(async () =>
@@ -54,28 +60,25 @@ describe('FilesService', () => {
           | UploadApiErrorResponse),
       );
 
-    const createSpy = jest.spyOn(FileEntity, 'create').mockResolvedValue({
-      public_id: 'abc123',
-      secure_url: 'https://example.com',
-      userId: 1234,
-      title: createFileDto.title,
-    });
-
     const transactionSpy = jest
       .spyOn(mockedSequelize, 'transaction')
       .mockResolvedValue({ transaction: {} } as unknown as Transaction);
 
     const result = await service.create(createFileDto, user, file);
 
-    expect(uploadImageSpy).toHaveBeenCalledWith(file);
-    expect(uploadImageSpy).toHaveBeenCalledTimes(1);
+    console.log({
+      result,
+      uploadImageSpy: uploadImageSpy.mock.calls.length,
+      createSpy: createSpy.mock.calls.length,
+    });
     expect(transactionSpy).toHaveBeenCalledTimes(1);
-    expect(createSpy.mock.calls.length).toBeGreaterThanOrEqual(1);
-
+    expect(uploadImageSpy).toHaveBeenCalledWith(file);
+    expect(createSpy.mock.calls.length).toEqual(1);
     expect(result).toEqual({
+      id: expect.any(String),
       public_id: 'abc123',
       secure_url: 'https://example.com',
-      userId: 1234,
+      userId: '1',
       title: createFileDto.title,
     });
   });

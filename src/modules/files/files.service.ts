@@ -35,14 +35,12 @@ export class FilesService {
   ) {
     if (file === undefined) throw new BadRequestException('File is require');
 
-    let fileUploaded = {};
+    let fileUploaded: FileEntity = {} as FileEntity;
     try {
       const { public_id, secure_url } =
         await this.cloudinaryService.uploadImage(file);
 
       await this.sequelize.transaction(async (t) => {
-        const transactionHost = { transaction: t };
-
         fileUploaded = await this.fileEntity.create(
           {
             public_id,
@@ -50,10 +48,12 @@ export class FilesService {
             userId: user.id,
             title: createFileDto.title,
           },
-          { ...transactionHost, returning: true },
+          { transaction: t, returning: true },
         );
       });
-
+      if (!fileUploaded || typeof fileUploaded !== 'object') {
+        throw new InternalServerErrorException();
+      }
       return fileUploaded;
     } catch (error) {
       console.log({ error });

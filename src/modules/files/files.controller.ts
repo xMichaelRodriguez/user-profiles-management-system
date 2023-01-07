@@ -51,7 +51,7 @@ export class FilesController {
         }),
     )
     file?: Express.Multer.File,
-  ) {
+  ): Promise<FileEntity> {
     return this.filesService.create(createFileDto, user, file);
   }
 

@@ -43,7 +43,9 @@ describe('FilesController', () => {
       title: 'test',
     };
 
-    jest.spyOn(service, 'create').mockImplementation(() => Promise.resolve({}));
+    jest
+      .spyOn(service, 'create')
+      .mockImplementation(() => Promise.resolve({} as FileEntity));
 
     // Act
     await controller.create(expect.objectContaining(user), createFileDto, file);

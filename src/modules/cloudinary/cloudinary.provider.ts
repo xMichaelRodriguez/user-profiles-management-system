@@ -8,7 +8,7 @@ export const CloudinaryProvider = {
     return v2.config({
       cloud_name: configService.get('CLOUD_NAME'),
       api_key: configService.get('CLOUD_KEY'),
-      api_secret: configService.get('CLOUD_SECRET'),
+      api_secret: configService.get('API_CLOUD_SECRET'),
     });
   },
   inject: [ConfigService],
